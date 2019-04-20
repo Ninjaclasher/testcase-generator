@@ -11,17 +11,21 @@ Alternatively, just clone this repository!
 
 ## Usage
 ```python
+import random
+
 from testcase_generator import Constraint, Case, Batch, Generator, ConstraintParser
 
 def set_constraints(self):
     ## Write main constraints here ##
     # Sets the constraint of N to be between 1 and 10^3 inclusive.
     self.N = Constraint(1, 10**3)
+    # Sets the constraint of M to be a floating-point value between 1 and 10 inclusive.
+    self.M = Constraint(1, 10, random.uniform)
 
 def generate_input(self):
     ## Write generator here ##
-    # Generates a value for N
-    yield self.N.next
+    # Generates a value for N and M on the same line
+    yield self.N.next, self.M.next
 
 
 Case.SET_CONSTRAINTS = set_constraints
@@ -30,18 +34,18 @@ Case.SET_INPUT = generate_input
 
 # Using the yaml config to create the batches:
 config_yaml = """
-- batch: 1
-  constraints: {N: 1~10**2}
-  cases:
-   - {N: MIN}
-   - {N: MAX}
-   - {N: 2~10}
-   - {N: 10**2-1~}
+- batch: 1 # initializes a batch where cases go inside a directory called "batch1".
+  constraints: {N: 1~10**2} # sets the batch constraints.
+  cases: # individual cases for this batch.
+   - {N: MIN} # sets N to be the minimum value in this batch (N = 1).
+   - {N: MAX} # sets N to be the maximum value in this batch (N = 10**2).
+   - {N: 2~10} # sets N to be some random value between 2 and 10, inclusive.
+   - {N: 10**2-1~} # sets N to be some random value between 10**2-1 and the global maximum of 10**2.
 - batch: 2
-  constraints: {}
+  constraints: {} # no batch constraints, so all the constraints are the global constraints.
   cases:
    - {}
-   - {N: ~2}
+   - {N: ~2, M: 1}
 """
 
 p = ConstraintParser(data=config_yaml)

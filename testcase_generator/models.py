@@ -27,7 +27,7 @@ class Constraint:
 class Case:
     SET_CONSTRAINTS = None
     SET_INPUT = None
-    
+
     def __init__(self, *args, **kwargs):
         if Case.SET_INPUT is None:
             raise ValueError('Case.SET_INPUT is not set to a function.')
@@ -55,7 +55,7 @@ class Case:
         return self.dict[var]
 
     def __str__(self):
-        return '\n'.join('{} = {}'.format(x, y) for x,y in self.dict.items()) + '\n'
+        return '\n'.join('{} = {}'.format(x, y) for x, y in self.dict.items()) + '\n'
 
 
 class Batch:
@@ -89,7 +89,7 @@ class Batch:
             with open(filename + '.in', 'w') as out:
                 for line in case.generate_input():
                     try:
-                       iter(line)
+                        iter(line)
                     except TypeError:
                         line = str(line)
                     else:

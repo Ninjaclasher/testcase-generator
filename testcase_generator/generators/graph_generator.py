@@ -12,7 +12,7 @@ class GraphGenerator:
     def next_edge(self, a, b):
         try:
             u, v = self.edges.pop()
-        except:
+        except IndexError:
             return None
         if self.random.randint(0, 1) == 0:
             return u, v
@@ -34,7 +34,7 @@ class GraphGenerator:
         return self._node, self._node
 
     def _validate_node_pair(self, a, b):
-        return (self.self_loops or a != b) and (self.duplicates or self.edges[self._clean(a,b)] == 0)
+        return (self.self_loops or a != b) and (self.duplicates or self.edges[self._clean(a, b)] == 0)
 
     def _get_pair(self):
         a, b = self._get_node_pair()
