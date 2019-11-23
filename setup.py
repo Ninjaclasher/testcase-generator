@@ -5,12 +5,12 @@ with open('README.md') as f:
 
 setup(
     name='testcase-generator',
-    version='0.0.2',
+    version='0.1.0',
     author='Evan Zhang',
     install_requires=['pyyaml'],
     description='A testcase generator for creating testcases for online judges.',
     long_description=readme,
-    long_description_content_type="text/markdown",
+    long_description_content_type='text/markdown',
     url='https://github.com/Ninjaclasher/testcase-generator',
     packages=find_packages(),
     classifiers=[
