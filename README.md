@@ -20,9 +20,9 @@ def set_constraints(self):
     # Sets the constraint of N to be between 1 and 10^3 inclusive.
     self.N = Constraint(1, 10**3)
     # Sets the constraint of M to be a floating-point value between 1 and 10 inclusive.
-    self.M = Constraint(1, 10, random.uniform)
+    self.M = Constraint(1, 10, generator=random.uniform)
 
-def generate_input(self):
+def generate_input(self, **kwargs):
     ## Write generator here ##
     # Generates a value for N and M on the same line
     yield self.N.next, self.M.next
@@ -94,14 +94,13 @@ def set_constraints(self):
     # creates the graph generator
     self.ee = GraphGenerator()
     # Creates the variable that returns the next edge in the graph.
-    # The 1s are filler values.
-    self.E = Constraint(1, 1, self.ee.next_edge)
+    self.E = Constraint(generator=self.ee.next_edge)
     # Sets the graph type to be some graph type between 10 and 14.
     # Please read the initialize method doc for details.
     # In this case, the graph type is some form of a tree.
     self.graph_type = Constraint(10, 14)
 
-def generate_input(self):
+def generate_input(self, **kwargs):
     ## Write generator here ##
     n = self.N.next
     yield n
@@ -119,12 +118,9 @@ config_yaml = """
 - batch: 1
   constraints: {N: 1~10**3-1}
   cases:
-   - {}
-   - {}
-   - {}
-   - {}
-   - {}
-   - {}
+   - constraints: {}
+     repeat: 6
+   - {graph_type: 11}
 """
 
 p = ConstraintParser(data=config_yaml)
