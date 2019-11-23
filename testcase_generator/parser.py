@@ -17,40 +17,62 @@ class ConstraintParser:
             if var not in constraints_dict.keys():
                 constraints_dict[var] = Case().get(var).copy()
 
+            if len(constraints_dict[var].args) != 2:
+                raise ValueError('The parser does not support constraint {} as '
+                                 'it is not bounded with a minimum and maximum'.format(var))
+
+            _min, _max = constraints_dict[var].args
+
             constraint = str(constraint).split('~')
             if len(constraint) == 1:
                 constraint = constraint[0]
                 if constraint == 'MAX':
-                    constraints_dict[var].MIN = constraints_dict[var].MAX
+                    _min = _max
                 elif constraint == 'MIN':
-                    constraints_dict[var].MAX = constraints_dict[var].MIN
+                    _max = _min
                 else:
                     new_value = eval(constraint)
-                    if not (constraints_dict[var].MIN <= new_value <= constraints_dict[var].MAX):
+                    if not (_min <= new_value <= _max):
                         raise ValueError('{} for constraint {} is not in the '
                                          'global or batch constraints'.format(new_value, var))
-                    constraints_dict[var].MIN = new_value
-                    constraints_dict[var].MAX = new_value
+                    _min = new_value
+                    _max = new_value
             elif len(constraint) == 2:
                 lower, upper = constraint
                 if lower.strip():
-                    constraints_dict[var].MIN = max(constraints_dict[var].MIN, eval(lower))
+                    lower = eval(lower.strip())
+                    if lower < _min:
+                        raise ValueError('{} for constraint {} is not in the '
+                                         'global or batch constraints'.format(lower, var))
+                    _min = lower
                 if upper.strip():
-                    constraints_dict[var].MAX = min(constraints_dict[var].MAX, eval(upper))
-                if constraints_dict[var].MIN > constraints_dict[var].MAX:
+                    upper = eval(upper.strip())
+                    if upper > _max:
+                        raise ValueError('{} for constraint {} is not in the '
+                                         'global or batch constraints'.format(upper, var))
+                    _max = upper
+                if _max < _min:
                     raise ValueError('Lowerbound is larger than upperbound for constraint {}'.format(var))
             else:
-                raise ValueError
+                raise ValueError('Too many arguments')
+
+            constraints_dict[var].set_args(_min, _max)
 
         return constraints_dict
 
     def parse(self):
         for batch in self.data:
             batch_constraints = self.parse_case(batch.get('constraints', {}))
+            cases = []
+            for case in batch['cases']:
+                constraints = self.parse_case(case.get('constraints', case), batch_constraints)
+                for i in range(case.get('repeat', 1)):
+                    cases.append(Case(constraints))
 
             self.batches.append(
                 Batch(
                     num=batch['batch'],
-                    cases=[Case(self.parse_case(case, batch_constraints)) for case in batch['cases']],
+                    cases=cases,
+                    start=batch.get('start', 0),
                 )
             )

@@ -4,24 +4,22 @@ import types
 
 
 class Constraint:
-    def __init__(self, MIN, MAX, gen_function=random.randint):
-        self.MIN = MIN
-        self.MAX = MAX
-        self.generate = gen_function
+    def __init__(self, *args, generator=random.randint):
+        self.args = args
+        self.generate = generator
 
-    @property
-    def bounds(self):
-        return self.MIN, self.MAX
+    def set_args(self, *args):
+        self.args = args
 
     @property
     def next(self):
-        return self.generate(*self.bounds)
+        return self.generate(*self.args)
 
     def __str__(self):
-        return '[{}, {}]'.format(*self.bounds)
+        return '[{args}]'.format(args=', '.join(*self.args))
 
     def copy(self):
-        return Constraint(*self.bounds, self.generate)
+        return Constraint(*self.args, generator=self.generate)
 
 
 class Case:
@@ -49,7 +47,7 @@ class Case:
 
     @property
     def dict(self):
-        return {x[0]: x[1] for x in self.__dict__.items() if type(x[1]) == Constraint}
+        return {x[0]: x[1] for x in self.__dict__.items() if isinstance(x[1], Constraint)}
 
     def get(self, var):
         return self.dict[var]
@@ -87,13 +85,13 @@ class Batch:
         for case_num, case in enumerate(self.cases, self.start_case):
             filename = os.path.join(self.location, str(case_num))
             with open(filename + '.in', 'w') as out:
-                for line in case.generate_input():
+                for line in case.generate_input(batch=self.batch):
                     try:
                         iter(line)
                     except TypeError:
                         line = str(line)
                     else:
-                        if type(line) != str:
+                        if not isinstance(line, str):
                             line = ' '.join(map(str, line))
                     out.write(line + '\n')
             self.generate_output(exe, filename)
