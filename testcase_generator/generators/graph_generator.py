@@ -1,23 +1,20 @@
 from collections import Counter
-from random import Random
+
+from .custom_generator import CustomGenerator
 
 
-class GraphGenerator:
+class GraphGenerator(CustomGenerator):
     def __init__(self):
+        super().__init__()
         self.edges = Counter()
-        self.random = Random()
         self.nodes = []
-        self.is_initialized = False
 
-    def next_edge(self, a, b):
+    def next_edge(self):
         try:
             u, v = self.edges.pop()
         except IndexError:
             return None
-        if self.random.randint(0, 1) == 0:
-            return u, v
-        else:
-            return v, u
+        return (u, v) if self.random.randint(0, 1) else (v, u)
 
     @property
     def _node(self):
@@ -121,15 +118,13 @@ class GraphGenerator:
             duplicates: allow for duplicate edges between nodes
             self_loops: allow for edges between the same node
         """
-        if self.is_initialized:
-            raise ValueError('Cannot intialize twice.')
+        super().initialize()
+
         self.N = N
         self.type = int(graph_type)
         self.M = kwargs.get('M', None)
         self.duplicates = kwargs.get('duplicates', False)
         self.self_loops = kwargs.get('self_loops', False)
-
-        self.is_initialized = True
 
         self._generate_nodes()
         self._validate()
