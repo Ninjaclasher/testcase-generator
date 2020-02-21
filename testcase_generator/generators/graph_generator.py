@@ -9,6 +9,9 @@ class GraphGenerator(CustomGenerator):
         self.edges = Counter()
         self.nodes = []
 
+    def next(self):
+        return self.next_edge()
+
     def next_edge(self):
         try:
             u, v = self.edges.pop()
@@ -46,14 +49,6 @@ class GraphGenerator(CustomGenerator):
         for i in range(1, self.N):
             u = self.random.randint(0, i-1)
             self._add_edge(self.nodes[u], self.nodes[i])
-
-    def _validate(self):
-        if self.M is None and self.type in (1, 2):
-            raise ValueError('M must be specified.')
-        if self.type == 2 and self.M < self.N-1:
-            raise ValueError('Impossible graph.')
-        if self.type == 3 and self.N > 10**4:
-            raise ValueError('Do you want me to TLE?')
 
     def _generate_edges(self):
         N = self.N
@@ -99,6 +94,14 @@ class GraphGenerator(CustomGenerator):
             edges += [edge] * cnt
         self.edges = edges
         self.random.shuffle(self.edges)
+
+    def _validate(self):
+        if self.M is None and self.type in (1, 2):
+            raise ValueError('M must be specified.')
+        if self.type == 2 and self.M < self.N-1:
+            raise ValueError('Impossible graph.')
+        if self.type == 3 and self.N > 10**4:
+            raise ValueError('Do you want me to TLE?')
 
     def initialize(self, N, graph_type, *args, **kwargs):
         """
