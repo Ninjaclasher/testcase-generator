@@ -13,14 +13,14 @@ Alternatively, just clone this repository!
 ```python
 import random
 
-from testcase_generator import Constraint, Case, Batch, Generator, ConstraintParser
+from testcase_generator import BoundedConstraint, Case, Batch, Generator, ConstraintParser
 
 def set_constraints(self):
     ## Write main constraints here ##
     # Sets the constraint of N to be between 1 and 10^3 inclusive.
-    self.N = Constraint(1, 10**3)
+    self.N = BoundedConstraint(1, 10**3)
     # Sets the constraint of M to be a floating-point value between 1 and 10 inclusive.
-    self.M = Constraint(1, 10, generator=random.uniform)
+    self.M = BoundedConstraint(1, 10, generator=random.uniform)
 
 def generate_input(self, **kwargs):
     ## Write generator here ##
@@ -53,19 +53,23 @@ p.parse()
 batches = p.batches
 
 
-# creating the batches manually
+# alternatively, you can create the batches manually
 batches = [
     Batch(num=1, cases=[Case() for i in range(4)]),
-    Batch(num=2, cases=[Case(N=Constraint(1,10)) for i in range(2)]),
+    Batch(num=2, cases=[Case(N=BoundedConstraint(1, 10)) for i in range(2)]),
 ]
 
 
 Generator(batches=batches, exe='COMMAND_TO_GENERATE_OUTPUT').start()
 ```
 
-The generator features a `GraphGenerator`, which generates a variety of graph types:
+## Custom Generators
+### GraphGenerator
+This generator can be used to generate a variety of graph types, such as trees.
+
+Example code:
 ```python
-from testcase_generator import Constraint, Case, Batch, Generator, ConstraintParser, GraphGenerator
+from testcase_generator import BoundedConstraint, CustomGeneratorConstraint, Case, Batch, Generator, ConstraintParser, GraphGenerator
 
 """
  | initialize(self, N, graph_type, *args, **kwargs)
@@ -90,21 +94,19 @@ def set_constraints(self):
     ## Write main constraints here ##
     # Sets the constraint of N to be between 1 and 10^3 inclusive.
     # In this case, this is a graph with N nodes.
-    self.N = Constraint(1, 10**3)
-    # creates the graph generator
-    self.ee = GraphGenerator()
-    # Creates the variable that returns the next edge in the graph.
-    self.E = Constraint(generator=self.ee.next_edge)
+    self.N = BoundedConstraint(1, 10**3)
+    # Creates the graph constraint.
+    self.E = CustomGeneratorConstraint(generator=GraphGenerator())
     # Sets the graph type to be some graph type between 10 and 14.
     # Please read the initialize method doc for details.
     # In this case, the graph type is some form of a tree.
-    self.graph_type = Constraint(10, 14)
+    self.graph_type = BoundedConstraint(10, 14)
 
 def generate_input(self, **kwargs):
     ## Write generator here ##
     n = self.N.next
     yield n
-    self.ee.initialize(n, self.graph_type.next)
+    self.E.initialize(n, self.graph_type.next)
     for i in range(n-1):
         yield self.E.next
 
@@ -120,7 +122,7 @@ config_yaml = """
   cases:
    - constraints: {}
      repeat: 6
-   - {graph_type: 11}
+   - constraints: {graph_type: 11}
 """
 
 p = ConstraintParser(data=config_yaml)
@@ -128,4 +130,21 @@ p.parse()
 batches = p.batches
 
 Generator(batches=batches, exe='COMMAND_TO_GENERATE_OUTPUT').start()
+```
+
+### StringGenerator
+
+```python
+"""
+ |  initialize(self, min_length, max_length, **kwargs)
+ |      min_length: minimum length of the string
+ |      max_length: maximum length of the string
+ |      kwargs:
+ |          type: type of string to generate
+ |                  standard: default string
+ |                  palindrome: palindromic string
+ |                  space_separated: space separated "words"
+ |                  repeating: string consisting of a substring that is repeated more than 1 time
+ |          charset: available characters to use, the default is all lowercase letters
+"""
 ```
