@@ -1,6 +1,6 @@
 import yaml
 
-from .models import Case, Batch
+from .models import Batch, BoundedConstraint, Case
 
 
 class ConstraintParser:
@@ -17,9 +17,9 @@ class ConstraintParser:
             if var not in constraints_dict.keys():
                 constraints_dict[var] = Case().get(var).copy()
 
-            if len(constraints_dict[var].args) != 2:
-                raise ValueError('The parser does not support constraint {} as '
-                                 'it is not bounded with a minimum and maximum'.format(var))
+            if not isinstance(constraints_dict[var], BoundedConstraint):
+                raise ValueError('The parser does not support modifiying constraint {} as '
+                                 'it is not a BoundedConstraint'.format(var))
 
             _min, _max = constraints_dict[var].args
 
@@ -65,7 +65,7 @@ class ConstraintParser:
             batch_constraints = self.parse_case(batch.get('constraints', {}))
             cases = []
             for case in batch['cases']:
-                constraints = self.parse_case(case.get('constraints', case), batch_constraints)
+                constraints = self.parse_case(case.get('constraints', {}), batch_constraints)
                 for i in range(case.get('repeat', 1)):
                     cases.append(Case(constraints))
 

@@ -3,23 +3,60 @@ import random
 import types
 
 
-class Constraint:
-    def __init__(self, *args, generator=random.randint):
+class BaseConstraint:
+    def __init__(self, *args, **kwargs):
         self.args = args
-        self.generate = generator
+        self.generator = kwargs.get('generator')
 
     def set_args(self, *args):
         self.args = args
 
     @property
     def next(self):
-        return self.generate(*self.args)
+        return self.generator(*self.args)
 
     def __str__(self):
         return '[{args}]'.format(args=', '.join(*self.args))
 
     def copy(self):
-        return Constraint(*self.args, generator=self.generate)
+        return self.__class__(*self.args, generator=self.generator)
+
+
+class BoundedConstraint(BaseConstraint):
+    def __init__(self, *args, generator=random.randint):
+        if len(args) != 2:
+            raise ValueError('BoundedConstraint takes exactly 2 arguments')
+        super().__init__(*args, generator=generator)
+
+    @property
+    def min(self):
+        return self.args[0]
+
+    @property
+    def max(self):
+        return self.args[1]
+
+    def set_min(self, min_value):
+        self.set_args(min_value, self.max)
+
+    def set_max(self, max_value):
+        self.set_args(self.min, max_value)
+
+
+class NoArgumentConstraint(BaseConstraint):
+    def __init__(self, *args, **kwargs):
+        if len(args) != 0:
+            raise ValueError('This constraint takes no arguments')
+        super().__init__(*args, **kwargs)
+
+
+class CustomGeneratorConstraint(NoArgumentConstraint):
+    def initialize(self, *args, **kwargs):
+        self.generator.initialize(*args, **kwargs)
+
+    @property
+    def next(self):
+        return self.generator.next()
 
 
 class Case:
@@ -47,7 +84,7 @@ class Case:
 
     @property
     def dict(self):
-        return {x[0]: x[1] for x in self.__dict__.items() if isinstance(x[1], Constraint)}
+        return {x[0]: x[1] for x in self.__dict__.items() if isinstance(x[1], BaseConstraint)}
 
     def get(self, var):
         return self.dict[var]
