@@ -22,31 +22,30 @@ class ConstraintParser:
                                  'it is not a BoundedConstraint'.format(var))
 
             _min, _max = constraints_dict[var].args
+            eval_locals = {
+                'MIN': _min,
+                'MAX': _max,
+            }
 
             constraint = str(constraint).split('~')
             if len(constraint) == 1:
                 constraint = constraint[0]
-                if constraint == 'MAX':
-                    _min = _max
-                elif constraint == 'MIN':
-                    _max = _min
-                else:
-                    new_value = eval(constraint)
-                    if not (_min <= new_value <= _max):
-                        raise ValueError('{} for constraint {} is not in the '
-                                         'global or batch constraints'.format(new_value, var))
-                    _min = new_value
-                    _max = new_value
+                new_value = eval(constraint, eval_locals)
+                if not (_min <= new_value <= _max):
+                    raise ValueError('{} for constraint {} is not in the '
+                                     'global or batch constraints'.format(new_value, var))
+                _min = new_value
+                _max = new_value
             elif len(constraint) == 2:
                 lower, upper = constraint
                 if lower.strip():
-                    lower = eval(lower.strip())
+                    lower = eval(lower.strip(), eval_locals)
                     if lower < _min:
                         raise ValueError('{} for constraint {} is not in the '
                                          'global or batch constraints'.format(lower, var))
                     _min = lower
                 if upper.strip():
-                    upper = eval(upper.strip())
+                    upper = eval(upper.strip(), eval_locals)
                     if upper > _max:
                         raise ValueError('{} for constraint {} is not in the '
                                          'global or batch constraints'.format(upper, var))

@@ -39,8 +39,8 @@ config_yaml = """
   cases: # individual cases for this batch.
    - {N: MIN} # sets N to be the minimum value in this batch (N = 1).
    - {N: MAX} # sets N to be the maximum value in this batch (N = 10**2).
-   - {N: 2~10} # sets N to be some random value between 2 and 10, inclusive.
-   - {N: 10**2-1~} # sets N to be some random value between 10**2-1 and the global maximum of 10**2.
+   - {N: 2~2**3} # sets N to be some random value between 2 and 2**3, inclusive.
+   - {N: MAX-1~} # sets N to be some random value between the global maximum minus 1 and the global maximum of 10**2.
 - batch: 2
   constraints: {} # no batch constraints, so all the constraints are the global constraints.
   cases:
