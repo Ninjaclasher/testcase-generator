@@ -1,3 +1,4 @@
+import copy
 import os
 import random
 import types
@@ -19,7 +20,7 @@ class BaseConstraint:
         return '[{args}]'.format(args=', '.join(*self.args))
 
     def copy(self):
-        return self.__class__(*self.args, generator=self.generator)
+        return copy.deepcopy(self)
 
 
 class BoundedConstraint(BaseConstraint):

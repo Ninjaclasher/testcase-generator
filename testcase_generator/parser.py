@@ -14,7 +14,7 @@ class ConstraintParser:
             constraints_dict[var] = constraint.copy()
 
         for var, constraint in constraints.items():
-            if var not in constraints_dict.keys():
+            if var not in constraints_dict:
                 constraints_dict[var] = Case().get(var).copy()
 
             if not isinstance(constraints_dict[var], BoundedConstraint):
