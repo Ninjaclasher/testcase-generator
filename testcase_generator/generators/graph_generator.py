@@ -1,6 +1,6 @@
 from collections import Counter
 
-from .custom_generator import CustomGenerator
+from testcase_generator.generators.custom_generator import CustomGenerator
 
 
 class GraphGenerator(CustomGenerator):
@@ -23,7 +23,7 @@ class GraphGenerator(CustomGenerator):
             self_loops: allow for edges between the same node
         """
         self.type = int(type)
-        self.M = kwargs.pop('M')
+        self.M = kwargs.pop('M', None)
         self.duplicates = kwargs.pop('duplicates', False)
         self.self_loops = kwargs.pop('self_loops', False)
         super().__init__(N, *args, **kwargs)
@@ -35,7 +35,7 @@ class GraphGenerator(CustomGenerator):
 
     def _validate(self):
         if self.type not in (1, 2, 3, 4, 10, 11, 12, 13, 14):
-            raise ValueError('Unknown type {}.'.format(self.type))
+            raise ValueError('Unknown graph type {}.'.format(self.type))
         if self.M is None and self.type in (1, 2):
             raise ValueError('M must be specified.')
         if self.type == 2 and self.M < self.N-1:

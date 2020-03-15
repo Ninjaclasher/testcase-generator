@@ -1,6 +1,6 @@
 import yaml
 
-from .models import Batch, BoundedConstraint, Case
+from testcase_generator.models import Batch, BoundedConstraint, Case
 
 
 class ConstraintParser:

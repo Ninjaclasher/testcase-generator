@@ -1,6 +1,6 @@
 import string
 
-from .custom_generator import CustomGenerator
+from testcase_generator.generators.custom_generator import CustomGenerator
 
 
 class StringGenerator(CustomGenerator):

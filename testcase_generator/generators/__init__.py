@@ -1,2 +1,2 @@
-from .graph_generator import GraphGenerator
-from .string_generator import StringGenerator
+from testcase_generator.generators.graph_generator import GraphGenerator
+from testcase_generator.generators.string_generator import StringGenerator

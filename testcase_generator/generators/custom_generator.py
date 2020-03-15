@@ -1,6 +1,6 @@
 from random import Random
 
-from .models import BoundedConstraint
+from testcase_generator.models import BoundedConstraint
 
 
 class CustomGenerator:
