@@ -137,7 +137,7 @@ class Batch:
 
 
 class Generator:
-    def __init__(self, batches, exe):
+    def __init__(self, batches, exe=None):
         self.batches = batches
         self.exe = exe
 
