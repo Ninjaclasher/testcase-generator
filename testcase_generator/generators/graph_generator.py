@@ -4,10 +4,44 @@ from .custom_generator import CustomGenerator
 
 
 class GraphGenerator(CustomGenerator):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, N, type, *args, **kwargs):
+        """
+        N: a BoundedConstraint object or an integer for the number of nodes
+        type:
+                 1: normal graph
+                 2: connected graph
+                 3: complete graph
+                 4: circle
+                 10: line
+                 11: normal tree
+                 12: tree, all nodes connected to one node
+                 13: caterpillar tree
+                 14: binary tree
+        kwargs:
+            M: number of edges, leave blank if it is a tree
+            duplicates: allow for duplicate edges between nodes
+            self_loops: allow for edges between the same node
+        """
+        self.type = int(type)
+        self.M = kwargs.pop('M')
+        self.duplicates = kwargs.pop('duplicates', False)
+        self.self_loops = kwargs.pop('self_loops', False)
+        super().__init__(N, *args, **kwargs)
+
         self.edges = Counter()
         self.nodes = []
+        self._generate_nodes()
+        self._generate_edges()
+
+    def _validate(self):
+        if self.type not in (1, 2, 3, 4, 10, 11, 12, 13, 14):
+            raise ValueError('Unknown type {}.'.format(self.type))
+        if self.M is None and self.type in (1, 2):
+            raise ValueError('M must be specified.')
+        if self.type == 2 and self.M < self.N-1:
+            raise ValueError('Impossible graph.')
+        if self.type == 3 and self.N > 10**4:
+            raise ValueError('Do you want me to TLE?')
 
     def next(self):
         return self.next_edge()
@@ -100,41 +134,3 @@ class GraphGenerator(CustomGenerator):
             edges += [edge] * cnt
         self.edges = edges
         self.random.shuffle(self.edges)
-
-    def _validate(self):
-        super()._validate()
-        if self.M is None and self.type in (1, 2):
-            raise ValueError('M must be specified.')
-        if self.type == 2 and self.M < self.N-1:
-            raise ValueError('Impossible graph.')
-        if self.type == 3 and self.N > 10**4:
-            raise ValueError('Do you want me to TLE?')
-
-    def initialize(self, N, type, *args, **kwargs):
-        """
-        N: a BoundedConstraint object or an integer for the number of nodes
-        type:
-                 1: normal graph
-                 2: connected graph
-                 3: complete graph
-                 4: circle
-                 10: line
-                 11: normal tree
-                 12: tree, all nodes connected to one node
-                 13: caterpillar tree
-                 14: binary tree
-        kwargs:
-            M: number of edges, leave blank if it is a tree
-            duplicates: allow for duplicate edges between nodes
-            self_loops: allow for edges between the same node
-        """
-        super().initialize(N)
-
-        self.type = int(type)
-        self.M = kwargs.get('M', None)
-        self.duplicates = kwargs.get('duplicates', False)
-        self.self_loops = kwargs.get('self_loops', False)
-
-        self._generate_nodes()
-        self._validate()
-        self._generate_edges()

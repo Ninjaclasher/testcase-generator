@@ -1,12 +1,30 @@
 import string
 
 from .custom_generator import CustomGenerator
-from .models import BoundedConstraint
 
 
 class StringGenerator(CustomGenerator):
+    def __init__(self, N, *args, **kwargs):
+        """
+        N: a BoundedConstraint object or an integer for the string length
+        kwargs:
+            type: type of string to generate
+                    standard: default string
+                    palindrome: palindromic string
+                    space_separated: space separated "words"
+                    repeating: string consisting of a substring that is repeated more than 1 time
+            charset: available characters to use, the default is all lowercase letters
+        """
+        self.type = kwargs.pop('type', 'standard')
+        self.charset = kwargs.pop('charset', string.ascii_lowercase)
+        super().__init__(N, *args, **kwargs)
+
+    def _validate(self):
+        if self.type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
+            raise ValueError('Unknown string type {}.'.format(self.type))
+
     def next(self):
-        return ''.join(getattr(self, self.gen_type)(self.N))
+        return ''.join(getattr(self, self.type)(self.N))
 
     @property
     def _char(self):
@@ -39,29 +57,3 @@ class StringGenerator(CustomGenerator):
         factors.remove(length)
         repeated_length = self.random.choice(list(factors))
         return self.standard(repeated_length) * (length // repeated_length)
-
-    def _validate(self):
-        super._validate()
-        if self.gen_type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
-            raise ValueError('Unknown string type {}'.format(self.gen_type))
-        if not isinstance(self.length, BoundedConstraint):
-            raise ValueError('length_constraint must be of type '
-                             'BoundedConstraint, not {}'.format(type(self.length).__name__))
-
-    def initialize(self, N, **kwargs):
-        """
-        N: a BoundedConstraint object or an integer for the string length
-        kwargs:
-            type: type of string to generate
-                    standard: default string
-                    palindrome: palindromic string
-                    space_separated: space separated "words"
-                    repeating: string consisting of a substring that is repeated more than 1 time
-            charset: available characters to use, the default is all lowercase letters
-        """
-        super().initialize(N)
-
-        self.gen_type = kwargs.get('type', 'standard')
-        self.charset = kwargs.get('charset', string.ascii_lowercase)
-
-        self._validate()

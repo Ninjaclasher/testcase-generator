@@ -26,7 +26,7 @@ class BaseConstraint:
 class BoundedConstraint(BaseConstraint):
     def __init__(self, *args, generator=random.randint):
         if len(args) != 2:
-            raise ValueError('BoundedConstraint takes exactly 2 arguments')
+            raise ValueError('BoundedConstraint takes exactly 2 arguments.')
         super().__init__(*args, generator=generator)
 
     @property
@@ -47,17 +47,23 @@ class BoundedConstraint(BaseConstraint):
 class NoArgumentConstraint(BaseConstraint):
     def __init__(self, *args, **kwargs):
         if len(args) != 0:
-            raise ValueError('This constraint takes no arguments')
+            raise ValueError('This constraint takes no arguments.')
         super().__init__(*args, **kwargs)
 
 
 class CustomGeneratorConstraint(NoArgumentConstraint):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.generator_object = None
+
     def initialize(self, *args, **kwargs):
-        self.generator.initialize(*args, **kwargs)
+        self.generator_object = self.generator(*args, **kwargs)
 
     @property
     def next(self):
-        return self.generator.next()
+        if self.generator_object is None:
+            raise ValueError('initialize() must be called first to initialize the generator.')
+        return self.generator_object.next()
 
 
 class Case:
