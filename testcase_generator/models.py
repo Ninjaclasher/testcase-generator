@@ -117,7 +117,8 @@ class Batch:
         return os.path.join(Batch.CASES_DIR, Batch.BATCH_DIR + str(self.batch))
 
     def generate_output(self, exe, filename):
-        os.system('{0} < {1}.in > {1}.out'.format(exe, filename))
+        if exe is not None:
+            os.system('{0} < {1}.in > {1}.out'.format(exe, filename))
 
     def run(self, exe):
         for case_num, case in enumerate(self.cases, self.start_case):
