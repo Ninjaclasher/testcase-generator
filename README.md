@@ -72,22 +72,22 @@ Example code:
 from testcase_generator import BoundedConstraint, CustomGeneratorConstraint, Case, Batch, Generator, ConstraintParser, GraphGenerator
 
 """
- | initialize(self, N, graph_type, *args, **kwargs)
- |     N: number of nodes
- |     graph_type:
- |              1: normal graph
- |              2: connected graph
- |              3: complete graph
- |              4: circle
- |              10: line
- |              11: normal tree
- |              12: tree, all nodes connected to one node
- |              13: caterpillar tree
- |              14: binary tree
- |     kwargs:
- |         M: number of edges, leave blank if it is a tree
- |         duplicates: allow for duplicate edges between nodes
- |         self_loops: allow for edges between the same node
+ |  __init__(self, N, type, *args, **kwargs)
+ |      N: a BoundedConstraint object or an integer for the number of nodes
+ |      type:
+ |               1: normal graph
+ |               2: connected graph
+ |               3: complete graph
+ |               4: circle
+ |               10: line
+ |               11: normal tree
+ |               12: tree, all nodes connected to one node
+ |               13: caterpillar tree
+ |               14: binary tree
+ |      kwargs:
+ |          M: number of edges, leave blank if it is a tree
+ |          duplicates: allow for duplicate edges between nodes
+ |          self_loops: allow for edges between the same node
 """
 
 def set_constraints(self):
@@ -96,7 +96,7 @@ def set_constraints(self):
     # In this case, this is a graph with N nodes.
     self.N = BoundedConstraint(1, 10**3)
     # Creates the graph constraint.
-    self.E = CustomGeneratorConstraint(generator=GraphGenerator())
+    self.E = CustomGeneratorConstraint(generator=GraphGenerator)
     # Sets the graph type to be some graph type between 10 and 14.
     # Please read the initialize method doc for details.
     # In this case, the graph type is some form of a tree.
@@ -129,15 +129,16 @@ p = ConstraintParser(data=config_yaml)
 p.parse()
 batches = p.batches
 
-Generator(batches=batches, exe='COMMAND_TO_GENERATE_OUTPUT').start()
+# If you don't want to generate output, exclude the "exe" argument
+Generator(batches=batches).start()
 ```
 
 ### StringGenerator
 
 ```python
 """
- |  initialize(self, min_length, max_length, **kwargs)
- |      length_constraint: a BoundedConstraint object for generating the string length
+ |  __init__(self, N, *args, **kwargs)
+ |      N: a BoundedConstraint object or an integer for the string length
  |      kwargs:
  |          type: type of string to generate
  |                  standard: default string
