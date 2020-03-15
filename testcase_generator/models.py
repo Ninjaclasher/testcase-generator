@@ -26,7 +26,7 @@ class BaseConstraint:
 class BoundedConstraint(BaseConstraint):
     def __init__(self, *args, generator=random.randint):
         if len(args) != 2:
-            raise ValueError('BoundedConstraint takes exactly 2 arguments.')
+            raise ValueError('This constraint takes exactly 2 arguments.')
         super().__init__(*args, generator=generator)
 
     @property

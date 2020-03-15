@@ -10,9 +10,9 @@ class TestCustomGenerators(unittest.TestCase):
 
     def test_custom_generator_fail_validation(self):
         with self.assertRaisesRegex(ValueError, 'N must be an integer or a BoundedConstraint'):
-            StringGenerator('')
+            StringGenerator('', seed=self.SEED)
         with self.assertRaisesRegex(ValueError, 'N must be an integer or a BoundedConstraint'):
-            GraphGenerator('', type=1)
+            GraphGenerator('', type=1, seed=self.SEED)
 
     def test_string_generator_basic(self):
         s = StringGenerator(5, seed=self.SEED)
@@ -41,14 +41,14 @@ class TestCustomGenerators(unittest.TestCase):
 
     def test_string_generator_fail_validation(self):
         with self.assertRaisesRegex(ValueError, 'Unknown string type aa.'):
-            StringGenerator(5, type='aa')
+            StringGenerator(5, type='aa', seed=self.SEED)
 
     def test_graph_generator_fail_validation(self):
         with self.assertRaisesRegex(ValueError, 'Unknown graph type.'):
-            GraphGenerator(1, type=0)
+            GraphGenerator(1, type=0, seed=self.SEED)
         with self.assertRaisesRegex(ValueError, 'M must be specified.'):
-            GraphGenerator(1, type=1)
+            GraphGenerator(1, type=1, seed=self.SEED)
         with self.assertRaisesRegex(ValueError, 'Impossible graph.'):
-            GraphGenerator(3, type=2, M=1)
+            GraphGenerator(3, type=2, M=1, seed=self.SEED)
         with self.assertRaises(ValueError):
-            GraphGenerator(10**100, type=3)
+            GraphGenerator(10**100, type=3, seed=self.SEED)

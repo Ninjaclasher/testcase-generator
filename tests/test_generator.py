@@ -9,7 +9,10 @@ from testcase_generator import (
 
 
 class TestGenerator(unittest.TestCase):
+    SEED = 1
+
     def setUp(self):
+        self.random = random.Random(self.SEED)
         self.assertIsNone(Case.SET_CONSTRAINTS)
         self.assertIsNone(Case.SET_INPUT)
 
@@ -23,10 +26,17 @@ class TestGenerator(unittest.TestCase):
         Case.SET_INPUT = None
         Batch.CASES_DIR = self._old_cases_dir
 
+    def test_case_functions_not_set(self):
+        with self.assertRaisesRegex(ValueError, 'Case.SET_INPUT is not set to a function.'):
+            Case()
+        Case.SET_INPUT = 1
+        with self.assertRaisesRegex(ValueError, 'Case.SET_CONSTRAINTS is not set to a function.'):
+            Case()
+
     def test_generator_basic(self):
-        def set_constraints(self):
-            self.N = BoundedConstraint(1, 100)
-            self.M = BoundedConstraint(1, 10, generator=random.uniform)
+        def set_constraints(this):
+            this.N = BoundedConstraint(1, 100, generator=self.random.randint)
+            this.M = BoundedConstraint(1, 10, generator=self.random.uniform)
 
         def generate_input(self, **kwargs):
             yield self.N.next, self.M.next
@@ -37,7 +47,7 @@ class TestGenerator(unittest.TestCase):
         Case.SET_INPUT = generate_input
 
         batches = [
-            Batch(num=1, cases=[Case(N=BoundedConstraint(1, 1))]),
+            Batch(num=1, cases=[Case(N=BoundedConstraint(1, 1, generator=self.random.randint))]),
             Batch(num=2, cases=[Case() for i in range(10)]),
         ]
         Generator(batches=batches).start()
@@ -48,11 +58,11 @@ class TestGenerator(unittest.TestCase):
                              sorted('{}.in'.format(i + x.start_case) for i in range(len(x.cases))))
 
     def test_generator_tree(self):
-        def set_constraints(self):
-            self.N = BoundedConstraint(1, 10**5)
-            self.M = BoundedConstraint(1, 10)
-            self.E = CustomGeneratorConstraint(generator=GraphGenerator)
-            self.T = BoundedConstraint(10, 14)
+        def set_constraints(this):
+            this.N = BoundedConstraint(1, 10**5, generator=self.random.randint)
+            this.M = BoundedConstraint(1, 10, generator=self.random.randint)
+            this.E = CustomGeneratorConstraint(generator=GraphGenerator)
+            this.T = BoundedConstraint(10, 14, generator=self.random.randint)
 
         def generate_input(self, **kwargs):
             n = self.N.next
@@ -69,7 +79,8 @@ class TestGenerator(unittest.TestCase):
         Case.SET_INPUT = generate_input
 
         batches = [
-            Batch(num=1, cases=[Case() for i in range(10)], start=5),
+            Batch(num=1, cases=[Case() for i in range(5)], start=5),
+            Batch(num=2, cases=[Case(N=BoundedConstraint(1, 100, generator=self.random.randint)) for i in range(20)]),
         ]
         Generator(batches=batches, exe='echo 0').start()
 
@@ -87,10 +98,10 @@ class TestGenerator(unittest.TestCase):
                     self.assertEqual(len(data), int(data[0].split()[0]) + 1)  # account of ending newline
 
     def test_generator_graph(self):
-        def set_constraints(self):
-            self.N = BoundedConstraint(1, 500)
-            self.M = BoundedConstraint(1, 2000)
-            self.E = CustomGeneratorConstraint(generator=GraphGenerator)
+        def set_constraints(this):
+            this.N = BoundedConstraint(1, 500, generator=self.random.randint)
+            this.M = BoundedConstraint(1, 2000, generator=self.random.randint)
+            this.E = CustomGeneratorConstraint(generator=GraphGenerator)
 
         def generate_input(self, **kwargs):
             n = self.N.next
