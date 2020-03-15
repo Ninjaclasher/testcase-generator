@@ -6,7 +6,7 @@ from .models import BoundedConstraint
 
 class StringGenerator(CustomGenerator):
     def next(self):
-        return ''.join(getattr(self, self.gen_type)(self.length.next))
+        return ''.join(getattr(self, self.gen_type)(self.N))
 
     @property
     def _char(self):
@@ -41,15 +41,16 @@ class StringGenerator(CustomGenerator):
         return self.standard(repeated_length) * (length // repeated_length)
 
     def _validate(self):
+        super._validate()
         if self.gen_type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
             raise ValueError('Unknown string type {}'.format(self.gen_type))
         if not isinstance(self.length, BoundedConstraint):
             raise ValueError('length_constraint must be of type '
                              'BoundedConstraint, not {}'.format(type(self.length).__name__))
 
-    def initialize(self, length_constraint, **kwargs):
+    def initialize(self, N, **kwargs):
         """
-        length_constraint: a BoundedConstraint object for generating the string length
+        N: a BoundedConstraint object or an integer for the string length
         kwargs:
             type: type of string to generate
                     standard: default string
@@ -58,9 +59,8 @@ class StringGenerator(CustomGenerator):
                     repeating: string consisting of a substring that is repeated more than 1 time
             charset: available characters to use, the default is all lowercase letters
         """
-        super().initialize()
+        super().initialize(N)
 
-        self.length = length_constraint
         self.gen_type = kwargs.get('type', 'standard')
         self.charset = kwargs.get('charset', string.ascii_lowercase)
 

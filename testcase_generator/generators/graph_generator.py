@@ -20,6 +20,12 @@ class GraphGenerator(CustomGenerator):
         return (u, v) if self.random.randint(0, 1) else (v, u)
 
     @property
+    def N(self):
+        # precompute and use the same N
+        self._N = super().N
+        return super().N
+
+    @property
     def _node(self):
         return self.random.choice(self.nodes)
 
@@ -96,6 +102,7 @@ class GraphGenerator(CustomGenerator):
         self.random.shuffle(self.edges)
 
     def _validate(self):
+        super()._validate()
         if self.M is None and self.type in (1, 2):
             raise ValueError('M must be specified.')
         if self.type == 2 and self.M < self.N-1:
@@ -103,10 +110,10 @@ class GraphGenerator(CustomGenerator):
         if self.type == 3 and self.N > 10**4:
             raise ValueError('Do you want me to TLE?')
 
-    def initialize(self, N, graph_type, *args, **kwargs):
+    def initialize(self, N, type, *args, **kwargs):
         """
-        N: number of nodes
-        graph_type:
+        N: a BoundedConstraint object or an integer for the number of nodes
+        type:
                  1: normal graph
                  2: connected graph
                  3: complete graph
@@ -121,10 +128,9 @@ class GraphGenerator(CustomGenerator):
             duplicates: allow for duplicate edges between nodes
             self_loops: allow for edges between the same node
         """
-        super().initialize()
+        super().initialize(N)
 
-        self.N = N
-        self.type = int(graph_type)
+        self.type = int(type)
         self.M = kwargs.get('M', None)
         self.duplicates = kwargs.get('duplicates', False)
         self.self_loops = kwargs.get('self_loops', False)
