@@ -38,7 +38,7 @@ class GraphGenerator(CustomGenerator):
             raise ValueError('Unknown graph type {}.'.format(self.type))
         if self.M is None and self.type in (1, 2):
             raise ValueError('M must be specified.')
-        if self.type == 2 and self.M < self.N-1:
+        if self.type == 2 and self.M < self.N - 1:
             raise ValueError('Impossible graph.')
         if self.type == 3 and self.N > 10**4:
             raise ValueError('Do you want me to TLE?')
@@ -64,7 +64,7 @@ class GraphGenerator(CustomGenerator):
         return self.random.choice(self.nodes)
 
     def _generate_nodes(self):
-        self.nodes = list(range(1, self.N+1))
+        self.nodes = list(range(1, self.N + 1))
         self.random.shuffle(self.nodes)
 
     def _clean(self, a, b):
@@ -87,7 +87,7 @@ class GraphGenerator(CustomGenerator):
 
     def _generate_tree(self):
         for i in range(1, self.N):
-            u = self.random.randint(0, i-1)
+            u = self.random.randint(0, i - 1)
             self._add_edge(self.nodes[u], self.nodes[i])
 
     def _generate_edges(self):
@@ -98,7 +98,7 @@ class GraphGenerator(CustomGenerator):
                 self._add_edge(*self._get_pair())
         elif self.type == 2:
             self._generate_tree()
-            for i in range(self.M-N+1):
+            for i in range(self.M - N + 1):
                 self._add_edge(*self._get_pair())
         elif self.type == 3:
             for i in self.nodes:
@@ -107,10 +107,10 @@ class GraphGenerator(CustomGenerator):
         elif self.type == 4:
             self.nodes.append(self.nodes[0])
             for i in range(self.N):
-                self._add_edge(self.nodes[i], self.nodes[i+1])
+                self._add_edge(self.nodes[i], self.nodes[i + 1])
         elif self.type == 10:
-            for i in range(self.N-1):
-                self._add_edge(self.nodes[i], self.nodes[i+1])
+            for i in range(self.N - 1):
+                self._add_edge(self.nodes[i], self.nodes[i + 1])
         elif self.type == 11:
             self._generate_tree()
         elif self.type == 12:
@@ -119,16 +119,16 @@ class GraphGenerator(CustomGenerator):
                 if i != special:
                     self._add_edge(i, special)
         elif self.type == 13:
-            main_len = self.random.randint(self.N//2, self.N-1)
+            main_len = self.random.randint(self.N // 2, self.N - 1)
             for i in range(main_len):
-                self._add_edge(self.nodes[i], self.nodes[i+1])
-            for j in range(main_len+1, self.N):
-                u = self.random.randint(0, j-1)
-                self._add_edge(self.nodes[u], self.nodes[j])
+                self._add_edge(self.nodes[i], self.nodes[i + 1])
+            for i in range(main_len + 1, self.N):
+                u = self.random.randint(0, i - 1)
+                self._add_edge(self.nodes[u], self.nodes[i])
         elif self.type == 14:
             self.nodes = [0] + self.nodes
-            for i in range(2, self.N+1):
-                self._add_edge(self.nodes[i], self.nodes[i//2])
+            for i in range(2, self.N + 1):
+                self._add_edge(self.nodes[i], self.nodes[i // 2])
         edges = []
         for edge, cnt in self.edges.items():
             edges += [edge] * cnt

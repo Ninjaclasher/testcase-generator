@@ -3,6 +3,8 @@
 
     Created by Evan Zhang (Ninjaclasher)
 """
-from testcase_generator.models import Batch, BaseConstraint, BoundedConstraint, Case, CustomGeneratorConstraint, Generator, NoArgumentConstraint
-from testcase_generator.parser import ConstraintParser
 from testcase_generator.generators import GraphGenerator, StringGenerator
+from testcase_generator.models import (
+    BaseConstraint, Batch, BoundedConstraint, Case, CustomGeneratorConstraint, Generator, NoArgumentConstraint,
+)
+from testcase_generator.parser import ConstraintParser

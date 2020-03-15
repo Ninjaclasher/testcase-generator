@@ -73,5 +73,5 @@ class ConstraintParser:
                     num=batch['batch'],
                     cases=cases,
                     start=batch.get('start', 0),
-                )
+                ),
             )
