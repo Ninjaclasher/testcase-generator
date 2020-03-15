@@ -1,11 +1,12 @@
 import string
 
 from .custom_generator import CustomGenerator
+from .models import BoundedConstraint
 
 
 class StringGenerator(CustomGenerator):
     def next(self):
-        return ''.join(getattr(self, self.gen_type)(self.random.randint(self.min_len, self.max_len)))
+        return ''.join(getattr(self, self.gen_type)(self.length.next))
 
     @property
     def _char(self):
@@ -42,11 +43,13 @@ class StringGenerator(CustomGenerator):
     def _validate(self):
         if self.gen_type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
             raise ValueError('Unknown string type {}'.format(self.gen_type))
+        if not isinstance(self.length, BoundedConstraint):
+            raise ValueError('length_constraint must be of type '
+                             'BoundedConstraint, not {}'.format(type(self.length).__name__))
 
-    def initialize(self, min_length, max_length, **kwargs):
+    def initialize(self, length_constraint, **kwargs):
         """
-        min_length: minimum length of the string
-        max_length: maximum length of the string
+        length_constraint: a BoundedConstraint object for generating the string length
         kwargs:
             type: type of string to generate
                     standard: default string
@@ -57,8 +60,7 @@ class StringGenerator(CustomGenerator):
         """
         super().initialize()
 
-        self.min_len = min_length
-        self.max_len = max_length
+        self.length = length_constraint
         self.gen_type = kwargs.get('type', 'standard')
         self.charset = kwargs.get('charset', string.ascii_lowercase)
 

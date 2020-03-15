@@ -137,8 +137,7 @@ Generator(batches=batches, exe='COMMAND_TO_GENERATE_OUTPUT').start()
 ```python
 """
  |  initialize(self, min_length, max_length, **kwargs)
- |      min_length: minimum length of the string
- |      max_length: maximum length of the string
+ |      length_constraint: a BoundedConstraint object for generating the string length
  |      kwargs:
  |          type: type of string to generate
  |                  standard: default string
