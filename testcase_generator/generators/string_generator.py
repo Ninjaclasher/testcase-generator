@@ -20,6 +20,7 @@ class StringGenerator(CustomGenerator):
         super().__init__(N, *args, **kwargs)
 
     def _validate(self):
+        super()._validate()
         if self.type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
             raise ValueError('Unknown string type {}.'.format(self.type))
 

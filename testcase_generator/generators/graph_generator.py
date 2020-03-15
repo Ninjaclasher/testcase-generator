@@ -34,6 +34,7 @@ class GraphGenerator(CustomGenerator):
         self._generate_edges()
 
     def _validate(self):
+        super()._validate()
         if self.type not in (1, 2, 3, 4, 10, 11, 12, 13, 14):
             raise ValueError('Unknown graph type {}.'.format(self.type))
         if self.M is None and self.type in (1, 2):
