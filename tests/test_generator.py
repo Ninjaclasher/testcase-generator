@@ -12,7 +12,7 @@ class TestGenerator(unittest.TestCase):
     SEED = 1
 
     def setUp(self):
-        self.random = random.Random(self.SEED)
+        random.seed(self.SEED)
         self.assertIsNone(Case.SET_CONSTRAINTS)
         self.assertIsNone(Case.SET_INPUT)
 
@@ -35,8 +35,8 @@ class TestGenerator(unittest.TestCase):
 
     def test_generator_basic(self):
         def set_constraints(this):
-            this.N = BoundedConstraint(1, 100, generator=self.random.randint)
-            this.M = BoundedConstraint(1, 10, generator=self.random.uniform)
+            this.N = BoundedConstraint(1, 100)
+            this.M = BoundedConstraint(1, 10, generator=random.uniform)
 
         def generate_input(self, **kwargs):
             yield self.N.next, self.M.next
@@ -47,7 +47,7 @@ class TestGenerator(unittest.TestCase):
         Case.SET_INPUT = generate_input
 
         batches = [
-            Batch(num=1, cases=[Case(N=BoundedConstraint(1, 1, generator=self.random.randint))]),
+            Batch(num=1, cases=[Case(N=BoundedConstraint(1, 1))]),
             Batch(num=2, cases=[Case() for i in range(10)]),
         ]
         Generator(batches=batches).start()
@@ -59,10 +59,10 @@ class TestGenerator(unittest.TestCase):
 
     def test_generator_tree(self):
         def set_constraints(this):
-            this.N = BoundedConstraint(1, 10**5, generator=self.random.randint)
-            this.M = BoundedConstraint(1, 10, generator=self.random.randint)
+            this.N = BoundedConstraint(1, 10**5)
+            this.M = BoundedConstraint(1, 10)
             this.E = CustomGeneratorConstraint(generator=GraphGenerator)
-            this.T = BoundedConstraint(10, 14, generator=self.random.randint)
+            this.T = BoundedConstraint(10, 14)
 
         def generate_input(self, **kwargs):
             n = self.N.next
@@ -80,7 +80,7 @@ class TestGenerator(unittest.TestCase):
 
         batches = [
             Batch(num=1, cases=[Case() for i in range(5)], start=5),
-            Batch(num=2, cases=[Case(N=BoundedConstraint(1, 100, generator=self.random.randint)) for i in range(20)]),
+            Batch(num=2, cases=[Case(N=BoundedConstraint(1, 100)) for i in range(20)]),
         ]
         Generator(batches=batches, exe='echo 0').start()
 
@@ -99,8 +99,8 @@ class TestGenerator(unittest.TestCase):
 
     def test_generator_graph(self):
         def set_constraints(this):
-            this.N = BoundedConstraint(1, 500, generator=self.random.randint)
-            this.M = BoundedConstraint(1, 2000, generator=self.random.randint)
+            this.N = BoundedConstraint(1, 500)
+            this.M = BoundedConstraint(1, 2000)
             this.E = CustomGeneratorConstraint(generator=GraphGenerator)
 
         def generate_input(self, **kwargs):
