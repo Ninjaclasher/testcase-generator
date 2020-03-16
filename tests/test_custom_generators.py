@@ -2,7 +2,7 @@ import random
 import unittest
 
 from testcase_generator import (
-    ArrayGenerator, BoundedConstraint, GraphGenerator, StringGenerator,
+    ArrayGenerator, BoundedConstraint, ChoiceConstraint, GraphGenerator, StringGenerator,
 )
 
 
@@ -27,17 +27,24 @@ class TestCustomGenerators(unittest.TestCase):
 
     def test_string_generator_space_separated(self):
         s = StringGenerator(20, type='space_separated', seed=self.SEED)
-        self.assertEqual(s.next(), 'sipdwskau zpani ymyz')
-        self.assertEqual(s.next(), 'a m v g n xh a qp hh')
+        for i in range(10):
+            with self.subTest(i=i):
+                arr = s.next()
+                self.assertNotIn('  ', arr)
+                self.assertNotEqual(arr[0], ' ')
+                self.assertNotEqual(arr[-1], ' ')
 
     def test_string_generator_repeating(self):
-        s = StringGenerator(20, type='repeating', seed=self.SEED)
-        self.assertEqual(s.next(), 'szszszszszszszszszsz')
-        s = StringGenerator(1, type='repeating', seed=self.SEED)
-        self.assertEqual(s.next(), 'e')
+        for i in range(1, 10):
+            with self.subTest(N=i):
+                s = StringGenerator(i, type='repeating', seed=self.SEED)
+                arr = s.next()
+                self.assertEqual(len(arr), i)
+                if i > 1:
+                    self.assertTrue(any(arr[j:] + arr[:j] == arr for j in range(1, i)))
 
     def test_string_generator_charset(self):
-        s = StringGenerator(BoundedConstraint(1, 20), charset='azyc', seed=self.SEED)
+        s = StringGenerator(BoundedConstraint(1, 20), V=ChoiceConstraint('azyc'), seed=self.SEED)
         for i in range(10):
             with self.subTest(i=i):
                 self.assertTrue(set(s.next()).issubset('azyc'))
@@ -47,7 +54,7 @@ class TestCustomGenerators(unittest.TestCase):
             StringGenerator(5, type='aa', seed=self.SEED)
 
     def test_array_generator_sorted(self):
-        s = ArrayGenerator(BoundedConstraint(1, 50), BoundedConstraint(1, 50), type='sorted', seed=self.SEED)
+        s = ArrayGenerator(BoundedConstraint(1, 50), V=BoundedConstraint(1, 50), type='sorted', seed=self.SEED)
         for i in range(10):
             with self.subTest(i=i):
                 arr = s.next()
@@ -55,20 +62,18 @@ class TestCustomGenerators(unittest.TestCase):
 
     def test_array_generator_distinct(self):
         self.assertListEqual(
-            ArrayGenerator(10, BoundedConstraint(1, 60), type='distinct',
-                           generator_kwargs={'k': 3}, seed=self.SEED).next(),
+            ArrayGenerator(10, V=BoundedConstraint(1, 60), type='distinct', k=3, seed=self.SEED).next(),
             [9, 37, 55, 52, 49, 5, 17, 8, 32, 49],
         )
         self.assertListEqual(
-            sorted(ArrayGenerator(100, BoundedConstraint(1, 100), type='distinct', seed=self.SEED).next()),
+            sorted(ArrayGenerator(100, V=BoundedConstraint(1, 100), type='distinct', seed=self.SEED).next()),
             list(range(1, 101)),
         )
         with self.assertRaisesRegex(ValueError, 'Impossible to generate.'):
-            ArrayGenerator(10, BoundedConstraint(1, 4), type='distinct',
-                           generator_kwargs={'k': 2}, seed=self.SEED).next()
+            ArrayGenerator(10, V=BoundedConstraint(1, 4), type='distinct', k=2, seed=self.SEED).next()
 
     def test_array_generator_palindrome(self):
-        s = ArrayGenerator(100, BoundedConstraint(1, 100), type='palindrome', seed=self.SEED)
+        s = ArrayGenerator(100, V=BoundedConstraint(1, 100), type='palindrome', seed=self.SEED)
         for i in range(10):
             with self.subTest(i=i):
                 arr = s.next()
@@ -76,8 +81,8 @@ class TestCustomGenerators(unittest.TestCase):
 
     def test_array_generator_fail_validation(self):
         with self.assertRaisesRegex(ValueError, 'Unknown type aa'):
-            ArrayGenerator(5, BoundedConstraint(1, 1), type='aa', seed=self.SEED)
-        with self.assertRaisesRegex(ValueError, 'must be a BoundedConstraint'):
+            ArrayGenerator(5, V=BoundedConstraint(1, 1), type='aa', seed=self.SEED)
+        with self.assertRaisesRegex(ValueError, 'must be a '):
             ArrayGenerator(5, 1, seed=self.SEED)
 
     def test_graph_generator_basic(self):
