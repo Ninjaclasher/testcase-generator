@@ -145,7 +145,7 @@ Generator(batches=batches).start()
  |                  palindrome: palindromic string
  |                  space_separated: space separated "words"
  |                  repeating: string consisting of a substring that is repeated more than 1 time
- |          charset: available characters to use, the default is all lowercase letters
+ |          V: a ChoiceConstraint for the possible letters, the default is all lowercase letters
 """
 ```
 
@@ -153,15 +153,15 @@ Generator(batches=batches).start()
 
 ```python
 """
- |  __init__(self, N, V, *args, **kwargs)
+ |  __init__(self, N, *args, **kwargs)
  |      N: a BoundedConstraint object or an integer for the array size
- |      V: a BoundedConstraint object for the array values
  |      kwargs:
  |          type: type of array to generate
  |                  standard: default array
  |                  sorted: sorted default array
  |                  distinct: distinct elements in the array. set V appropriately for a permutation
  |                  palindrome: palindromic array
- |          generator_kwargs: any additional arguments for the generator:
- |                  distinct: takes a value of k for number of times each element can occur (default is 1)
+ |          V: a ChoiceConstraint or BoundedConstraint object for the array values
+ |          additional arguments for the generator:
+ |                  distinct: takes a value of "k" for number of times each element can occur (default is 1)
 """
