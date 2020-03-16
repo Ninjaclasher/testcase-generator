@@ -102,9 +102,9 @@ class GraphGenerator(CustomGenerator):
             for i in range(self.M - N + 1):
                 self._add_edge(*self._get_pair())
         elif self.type == 3:
-            for i in self.nodes:
-                for j in self.nodes[i + (not self.self_loops):]:
-                    self._add_edge(i, j)
+            for i, u in enumerate(self.nodes, not self.self_loops):
+                for v in self.nodes[i:]:
+                    self._add_edge(u, v)
         elif self.type == 4:
             self.nodes.append(self.nodes[0])
             for i in range(self.N):

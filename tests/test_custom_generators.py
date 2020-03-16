@@ -37,7 +37,7 @@ class TestCustomGenerators(unittest.TestCase):
         self.assertEqual(s.next(), 'e')
 
     def test_string_generator_charset(self):
-        s = StringGenerator(10, charset='azyc', seed=self.SEED)
+        s = StringGenerator(BoundedConstraint(1, 20), charset='azyc', seed=self.SEED)
         for i in range(10):
             with self.subTest(i=i):
                 self.assertTrue(set(s.next()).issubset('azyc'))
@@ -47,7 +47,7 @@ class TestCustomGenerators(unittest.TestCase):
             StringGenerator(5, type='aa', seed=self.SEED)
 
     def test_array_generator_sorted(self):
-        s = ArrayGenerator(10, BoundedConstraint(1, 50), type='sorted', seed=self.SEED)
+        s = ArrayGenerator(BoundedConstraint(1, 50), BoundedConstraint(1, 50), type='sorted', seed=self.SEED)
         for i in range(10):
             with self.subTest(i=i):
                 arr = s.next()
@@ -79,6 +79,33 @@ class TestCustomGenerators(unittest.TestCase):
             ArrayGenerator(5, BoundedConstraint(1, 1), type='aa', seed=self.SEED)
         with self.assertRaisesRegex(ValueError, 'must be a BoundedConstraint'):
             ArrayGenerator(5, 1, seed=self.SEED)
+
+    def test_graph_generator_basic(self):
+        for i in range(1, 11):
+            with self.subTest(N=i):
+                s = GraphGenerator(i, type=1, M=i * (i - 1) // 2)
+                edges = 0
+                while s.next() is not None:
+                    edges += 1
+                self.assertEqual(edges, i * (i - 1) // 2)
+
+    def test_graph_generator_complete(self):
+        for i in range(1, 11):
+            with self.subTest(N=i):
+                s = GraphGenerator(i, type=3, self_loops=True)
+                edges = 0
+                while s.next() is not None:
+                    edges += 1
+                self.assertEqual(edges, i * (i + 1) // 2)
+
+    def test_graph_generator_circle(self):
+        for i in range(1, 11):
+            with self.subTest(N=i):
+                s = GraphGenerator(i, type=4)
+                edges = 0
+                while s.next() is not None:
+                    edges += 1
+                self.assertEqual(edges, i)
 
     def test_graph_generator_fail_validation(self):
         with self.assertRaisesRegex(ValueError, 'Unknown graph type.'):
