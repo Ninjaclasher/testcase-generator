@@ -5,8 +5,9 @@ from testcase_generator.models import BoundedConstraint
 
 class CustomGenerator:
     def __init__(self, N, *args, **kwargs):
-        self.random = Random(kwargs.get('seed'))
+        self.random = Random(kwargs.pop('seed', None))
         self._N = N
+        self.kwargs = kwargs
         self._validate()
 
     def _validate(self):

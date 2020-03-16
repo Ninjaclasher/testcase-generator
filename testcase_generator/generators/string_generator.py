@@ -1,11 +1,13 @@
 import string
 
 from testcase_generator.generators.collection_generator import CollectionGenerator
+from testcase_generator.models import ChoiceConstraint
 
 
 class StringGenerator(CollectionGenerator):
     types = ('standard', 'palindrome', 'space_separated', 'repeating')
     default_type = 'standard'
+    default_value_generator = ChoiceConstraint(string.ascii_lowercase)
 
     def __init__(self, N, *args, **kwargs):
         """
@@ -16,9 +18,8 @@ class StringGenerator(CollectionGenerator):
                     palindrome: palindromic string
                     space_separated: space separated "words"
                     repeating: string consisting of a substring that is repeated more than 1 time
-            charset: available characters to use, the default is all lowercase letters
+            V: a ChoiceConstraint for the possible letters, the default is all lowercase letters
         """
-        self.charset = kwargs.pop('charset', string.ascii_lowercase)
         super().__init__(N, *args, **kwargs)
 
     def next(self):
@@ -26,7 +27,7 @@ class StringGenerator(CollectionGenerator):
 
     @property
     def _char(self):
-        return self.random.choice(self.charset)
+        return self.V.next
 
     def standard(self, length, **kwargs):
         return [self._char for i in range(length)]

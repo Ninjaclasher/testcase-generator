@@ -21,11 +21,38 @@ class BaseConstraint:
         return copy.deepcopy(self)
 
 
-class BoundedConstraint(BaseConstraint):
-    def __init__(self, *args, generator=random.randint):
+class ChoiceConstraint(BaseConstraint):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('generator', random.choice)
+        super().__init__(*args, **kwargs)
+
+    @property
+    def choices(self):
+        return self.args[0]
+
+    @property
+    def choice_count(self):
+        return len(self.choices)
+
+
+class BoundedConstraint(ChoiceConstraint):
+    def __init__(self, *args, **kwargs):
         if len(args) != 2:
             raise ValueError('This constraint takes exactly 2 arguments.')
-        super().__init__(*args, generator=generator)
+        kwargs.setdefault('generator', random.randint)
+        super().__init__(*args, **kwargs)
+
+    @property
+    def choices(self):
+        if isinstance(self.min, int) and isinstance(self.max, int):
+            return list(range(self.min, self.max + 1))
+        raise ValueError('Cannot determine the possible choices.')
+
+    @property
+    def choice_count(self):
+        if isinstance(self.min, int) and isinstance(self.max, int):
+            return self.max - self.min + 1
+        raise ValueError('Cannot determine the number of choices.')
 
     @property
     def min(self):
