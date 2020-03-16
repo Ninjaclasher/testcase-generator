@@ -1,2 +1,3 @@
+from testcase_generator.generators.array_generator import ArrayGenerator
 from testcase_generator.generators.graph_generator import GraphGenerator
 from testcase_generator.generators.string_generator import StringGenerator

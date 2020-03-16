@@ -1,9 +1,12 @@
 import string
 
-from testcase_generator.generators.custom_generator import CustomGenerator
+from testcase_generator.generators.collection_generator import CollectionGenerator
 
 
-class StringGenerator(CustomGenerator):
+class StringGenerator(CollectionGenerator):
+    types = ('standard', 'palindrome', 'space_separated', 'repeating')
+    default_type = 'standard'
+
     def __init__(self, N, *args, **kwargs):
         """
         N: a BoundedConstraint object or an integer for the string length
@@ -15,31 +18,25 @@ class StringGenerator(CustomGenerator):
                     repeating: string consisting of a substring that is repeated more than 1 time
             charset: available characters to use, the default is all lowercase letters
         """
-        self.type = kwargs.pop('type', 'standard')
         self.charset = kwargs.pop('charset', string.ascii_lowercase)
         super().__init__(N, *args, **kwargs)
 
-    def _validate(self):
-        super()._validate()
-        if self.type not in ('standard', 'palindrome', 'space_separated', 'repeating'):
-            raise ValueError('Unknown string type {}.'.format(self.type))
-
     def next(self):
-        return ''.join(getattr(self, self.type)(self.N))
+        return ''.join(super().next())
 
     @property
     def _char(self):
         return self.random.choice(self.charset)
 
-    def standard(self, length):
+    def standard(self, length, **kwargs):
         return [self._char for i in range(length)]
 
-    def palindrome(self, length):
+    def palindrome(self, length, **kwargs):
         chars = self.standard(length // 2)
         mid = [self._char] if length % 2 == 1 else []
         return chars + mid + chars[::-1]
 
-    def space_separated(self, length):
+    def space_separated(self, length, **kwargs):
         num_spaces = self.random.randint(0, (length - 1) // 2)
         chars = [[self._char] for i in range(num_spaces + 1)]
         remaining_length = length - num_spaces - (num_spaces + 1)
@@ -47,7 +44,7 @@ class StringGenerator(CustomGenerator):
             chars[self.random.randint(0, num_spaces)].append(self._char)
         return ' '.join(''.join(x) for x in chars)
 
-    def repeating(self, length):
+    def repeating(self, length, **kwargs):
         if length == 1:
             return [self._char]
         factors = set()

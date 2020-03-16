@@ -3,7 +3,7 @@
 
     Created by Evan Zhang (Ninjaclasher)
 """
-from testcase_generator.generators import GraphGenerator, StringGenerator
+from testcase_generator.generators import ArrayGenerator, GraphGenerator, StringGenerator
 from testcase_generator.models import (
     BaseConstraint, Batch, BoundedConstraint, Case, CustomGeneratorConstraint, Generator, NoArgumentConstraint,
 )
